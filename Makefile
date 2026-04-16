@@ -1,0 +1,50 @@
+# Local development helpers
+# Requires: docker, psql
+
+GHCR_IMAGE = ghcr.io/dzfranklin/plantopo-osm-db
+IMAGE      = $(GHCR_IMAGE):latest
+# Small extract for local testing (~25MB vs 1.5GB for GB)
+TEST_PBF_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutland-latest.osm.pbf
+TEST_REPLICATION_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutland-updates
+CONTAINER = osm-db-dev
+
+.PHONY: build push run stop logs psql test-import update
+
+build:
+	docker build --platform linux/amd64 -t $(IMAGE) .
+
+push: build
+	docker push $(IMAGE)
+
+# Run with the test extract (Rutland) instead of the full GB dump
+run: build
+	docker run --rm -it \
+		--platform linux/amd64 \
+		--name $(CONTAINER) \
+		-p 5433:5432 \
+		-v osm-db-dev-data:/var/lib/postgresql/18 \
+		-e PBF_URL=$(TEST_PBF_URL) \
+		-e REPLICATION_URL=$(TEST_REPLICATION_URL) \
+		-e OSM2PGSQL_PROCS=2 \
+		$(IMAGE)
+
+stop:
+	docker stop $(CONTAINER) || true
+	docker volume rm -f osm-db-dev-data || true
+
+logs:
+	docker logs -f $(CONTAINER)
+
+psql:
+	psql postgresql://osm@localhost:5433/osm
+
+update:
+	docker exec $(CONTAINER) /osm/update.sh
+
+# Wait for the import to complete, then run the integration test suite.
+# Assumes the container is already running (make run).
+test-import:
+	@echo "=== Waiting for import to complete (timeout 10m) ==="
+	scripts/wait-for-import.sh
+	@echo "=== Running integration tests ==="
+	scripts/test-import.sh

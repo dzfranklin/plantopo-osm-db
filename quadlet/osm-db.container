@@ -1,0 +1,20 @@
+[Unit]
+Description=OSM PostGIS database
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=ghcr.io/dzfranklin/plantopo-osm-db:latest
+AutoUpdate=registry
+PublishPort=5433:5432
+
+# Persistent storage: pgdata and downloaded OSM files
+Volume=osm-db.volume:/var/lib/postgresql/18
+
+[Service]
+Restart=always
+TimeoutStartSec=60
+TimeoutStopSec=120
+
+[Install]
+WantedBy=default.target
