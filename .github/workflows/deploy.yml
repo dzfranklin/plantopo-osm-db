@@ -103,13 +103,14 @@ jobs:
 
   deploy-functions:
     name: Deploy functions
-    needs: [check, deploy-docker]
+    needs: [check, build-and-push, deploy-docker]
     # Run if functions changed, but only after docker deploy if docker also ran.
-    # `deploy-docker` is skipped when docker didn't change, and a job with all
-    # skipped dependencies is itself considered skipped (not failed), so this
-    # condition handles both cases correctly.
+    # We list build-and-push and deploy-docker in needs so we can inspect their
+    # result, but use always() to prevent being auto-skipped when they're skipped.
     if: |
+      always() &&
       needs.check.outputs.functions == 'true' &&
+      needs.build-and-push.result != 'failure' &&
       needs.deploy-docker.result != 'failure'
     runs-on: ubuntu-latest
     steps:
