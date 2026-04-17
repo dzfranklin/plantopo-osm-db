@@ -5,6 +5,3 @@ postgres:
     auto_publish:
       functions:
         from_schemas: [ osm_functions ]
-
-styles:
-  - /examples

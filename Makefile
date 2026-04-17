@@ -9,10 +9,11 @@ GHCR_IMAGE = ghcr.io/dzfranklin/plantopo-osm-db
 IMAGE      = $(GHCR_IMAGE):latest
 TEST_PBF_URL = https://download.geofabrik.de/europe/united-kingdom/scotland-latest.osm.pbf
 TEST_REPLICATION_URL = https://download.geofabrik.de/europe/united-kingdom/scotland-updates
-CONTAINER        = osm-db-dev
-MARTIN_CONTAINER = osm-martin-dev
+CONTAINER          = osm-db-dev
+MARTIN_CONTAINER   = osm-martin-dev
+MAPUTNIK_CONTAINER = osm-maputnik-dev
 
-.PHONY: build push run stop logs psql test-import update deploy-functions clean martin martin-stop
+.PHONY: build push run stop logs psql test-import update deploy-functions clean martin maputnik
 
 clean: stop
 	docker volume rm osm-db-dev-data || true
@@ -54,17 +55,23 @@ deploy-functions:
 	docker exec $(CONTAINER) python3 /osm/functions/deploy.py
 
 martin:
-	@(sleep 2 && open http://localhost:3000 && open https://maplibre.org/maputnik/?style=http%3A%2F%2Flocalhost%3A3000%2Fstyle%2Ftrails.overlay.style) &
+	@trap 'docker stop $(MARTIN_CONTAINER) 2>/dev/null; exit 0' INT TERM EXIT; \
 	docker run --rm -it \
 		--name $(MARTIN_CONTAINER) \
 		-p 3000:3000 \
-		-v $(PWD)/examples:/examples:ro \
+		-v "$(CURDIR)/examples":/examples:ro \
 		ghcr.io/maplibre/martin \
 		--config /examples/martin-config.yaml \
 		--listen-addresses 0.0.0.0:3000
 
-martin-stop:
-	docker stop $(MARTIN_CONTAINER) || true
+maputnik:
+	@trap 'docker stop $(MAPUTNIK_CONTAINER) 2>/dev/null; exit 0' INT TERM EXIT; \
+	(sleep 2 && open http://localhost:8888) & \
+	docker run --rm -it \
+		--name $(MAPUTNIK_CONTAINER) \
+		-p 8888:8000 \
+		-v "$(CURDIR)/examples/trails.overlay.style.json":/style.json \
+		ghcr.io/maplibre/maputnik:main --file /style.json --watch
 
 # Wait for the import to complete, then run the integration test suite.
 # Assumes the container is already running (make run).
