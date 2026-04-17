@@ -132,7 +132,7 @@ function osm2pgsql.process_node(object)
     -- Only store nodes that have at least one interesting tag
     if not (tags.highway or tags.waterway or tags['natural']
             or tags.leisure or tags.amenity or tags.tourism
-            or tags.historic or tags.name or tags.place) then
+            or tags.historic or tags.name or tags.place or tags.barrier) then
         return
     end
     local row = extract(tags)

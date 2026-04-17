@@ -964,8 +964,8 @@
           "barrier/stile",
           "barrier/gate"
         ],
-        "icon-size": 0.8,
-        "icon-allow-overlap": false
+        "icon-allow-overlap": false,
+        "icon-size": 1.5
       },
       "paint": {}
     }

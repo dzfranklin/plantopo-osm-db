@@ -91,8 +91,12 @@ initial_import() {
         --number-processes="${OSM2PGSQL_PROCS:-6}" \
         --log-progress=true \
         "${PBF_FILE}" || return 1
-    log "Initial import complete. Removing PBF to free space..."
-    rm -f "${PBF_FILE}"
+    if [ "${KEEP_PBF:-0}" = "1" ]; then
+        log "Initial import complete. Keeping PBF (KEEP_PBF=1)."
+    else
+        log "Initial import complete. Removing PBF to free space..."
+        rm -f "${PBF_FILE}"
+    fi
 
     log "Initialising replication state..."
     osm2pgsql-replication init \

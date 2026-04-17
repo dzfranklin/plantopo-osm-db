@@ -13,7 +13,7 @@ CONTAINER          = osm-db-dev
 MARTIN_CONTAINER   = osm-martin-dev
 MAPUTNIK_CONTAINER = osm-maputnik-dev
 
-.PHONY: build push run stop logs psql test-import update deploy-functions clean martin maputnik
+.PHONY: build push run reimport stop logs psql test-import update deploy-functions clean martin maputnik
 
 clean: stop
 	docker volume rm osm-db-dev-data || true
@@ -24,7 +24,7 @@ clean-all: clean
 build:
 	docker build --platform linux/amd64 -t $(IMAGE) .
 
-# Run with the test extract (Rutland) instead of the full GB dump
+# Run with the test extract (Scotland) instead of the full GB dump
 run: build
 	@trap 'docker stop $(CONTAINER) 2>/dev/null; exit 0' INT TERM EXIT; \
 	docker run --rm \
@@ -36,7 +36,13 @@ run: build
 		-e PBF_URL=$(TEST_PBF_URL) \
 		-e REPLICATION_URL=$(TEST_REPLICATION_URL) \
 		-e OSM2PGSQL_PROCS=2 \
+		-e KEEP_PBF=1 \
 		$(IMAGE)
+
+# Wipe the DB data and re-import from the cached PBF (does not re-download)
+reimport: stop
+	docker volume rm osm-db-dev-data || true
+	$(MAKE) run
 
 stop:
 	docker stop $(CONTAINER) || true
