@@ -3,12 +3,23 @@
   "name": "Trails Overlay",
   "sprite": "https://tile.plantopo.com/sprite/sprite",
   "sources": {
+    "osm-raster": {
+      "type": "raster",
+      "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      "tileSize": 256,
+      "attribution": "© OpenStreetMap contributors"
+    },
     "osm": {
       "type": "vector",
-      "url": "http://localhost:3000/osm"
+      "url": "http://localhost:3000/trails_overlay"
     }
   },
   "layers": [
+    {
+      "id": "osm-raster",
+      "type": "raster",
+      "source": "osm-raster"
+    },
     {
       "id": "highway-path-casing",
       "type": "line",
@@ -429,12 +440,21 @@
         ],
         "line-width": [
           "interpolate",
-          ["linear"],
-          ["zoom"],
-          11, 2,
-          16, 5
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          11,
+          2,
+          16,
+          5
         ],
-        "line-dasharray": [3, 3],
+        "line-dasharray": [
+          3,
+          3
+        ],
         "line-opacity": 0.8
       }
     },
@@ -447,14 +467,24 @@
         "all",
         [
           "==",
-          ["get", "highway"],
+          [
+            "get",
+            "highway"
+          ],
           "path"
         ],
         [
           "in",
           [
             "coalesce",
-            ["get", "sac_scale", ["get", "tags"]],
+            [
+              "get",
+              "sac_scale",
+              [
+                "get",
+                "tags"
+              ]
+            ],
             ""
           ],
           [
@@ -478,42 +508,79 @@
           "match",
           [
             "coalesce",
-            ["get", "sac_scale", ["get", "tags"]],
+            [
+              "get",
+              "sac_scale",
+              [
+                "get",
+                "tags"
+              ]
+            ],
             ""
           ],
-          "hiking",                    "T1",
-          "mountain_hiking",           "T2",
-          "demanding_mountain_hiking", "T3",
-          "alpine_hiking",             "T4",
-          "demanding_alpine_hiking",   "T5",
-          "difficult_alpine_hiking",   "T6",
+          "hiking",
+          "T1",
+          "mountain_hiking",
+          "T2",
+          "demanding_mountain_hiking",
+          "T3",
+          "alpine_hiking",
+          "T4",
+          "demanding_alpine_hiking",
+          "T5",
+          "difficult_alpine_hiking",
+          "T6",
           ""
         ],
-        "text-font": ["Overpass Bold"],
+        "text-font": [
+          "Overpass Bold"
+        ],
         "text-size": [
           "interpolate",
-          ["linear"],
-          ["zoom"],
-          13, 9,
-          17, 12
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          9,
+          17,
+          12
         ],
         "text-max-angle": 30,
-        "text-offset": [0, -1]
+        "text-offset": [
+          0,
+          -1
+        ]
       },
       "paint": {
         "text-color": [
           "match",
           [
             "coalesce",
-            ["get", "sac_scale", ["get", "tags"]],
+            [
+              "get",
+              "sac_scale",
+              [
+                "get",
+                "tags"
+              ]
+            ],
             ""
           ],
-          "hiking",                    "#66bb6a",
-          "mountain_hiking",           "#ffca28",
-          "demanding_mountain_hiking", "#ffa726",
-          "alpine_hiking",             "#ef5350",
-          "demanding_alpine_hiking",   "#b71c1c",
-          "difficult_alpine_hiking",   "#6a1a6a",
+          "hiking",
+          "#66bb6a",
+          "mountain_hiking",
+          "#ffca28",
+          "demanding_mountain_hiking",
+          "#ffa726",
+          "alpine_hiking",
+          "#ef5350",
+          "demanding_alpine_hiking",
+          "#b71c1c",
+          "difficult_alpine_hiking",
+          "#6a1a6a",
           "#e64a19"
         ],
         "text-halo-color": "rgba(255,255,255,0.9)",

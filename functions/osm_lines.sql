@@ -2,7 +2,7 @@
 -- At low zoom levels only route-network lines are returned, keeping
 -- tile query cost proportional to what the style actually renders.
 -- geom is stored in 3857 (set at import time), so no ST_Transform needed.
-CREATE OR REPLACE FUNCTION osm_functions.osm_lines_tile(z integer, x integer, y integer)
+CREATE OR REPLACE FUNCTION osm_functions.osm_lines(z integer, x integer, y integer)
 RETURNS bytea AS $$
     SELECT ST_AsMVT(tile, 'osm_lines', 4096, 'geom', 'osm_id')
     FROM (
@@ -40,7 +40,7 @@ $$ LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE;
 -- TileJSON metadata read by Martin at startup.
 -- JSON Merge-patched onto Martin's auto-generated TileJSON.
 DO $do$ BEGIN
-    EXECUTE 'COMMENT ON FUNCTION osm_functions.osm_lines_tile IS $tj$' || $$
+    EXECUTE 'COMMENT ON FUNCTION osm_functions.osm_lines IS $tj$' || $$
     {
         "description": "Zoom-filtered OSM lines: route networks, waterways, and paths",
         "minzoom": 7,

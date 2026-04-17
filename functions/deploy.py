@@ -14,6 +14,7 @@ import psycopg2
 
 
 SCHEMA = "osm_functions"
+GRANT_USER = "osm"
 DSN = "postgresql:///osm?user=postgres"  # Unix socket, trust auth inside container
 
 _FUNC_NAME_RE = re.compile(
@@ -36,6 +37,7 @@ def main() -> None:
     try:
         with conn.cursor() as cur:
             cur.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
+            cur.execute(f"GRANT USAGE ON SCHEMA {SCHEMA} TO {GRANT_USER}")
         conn.commit()
 
         # Drop functions removed from source
@@ -63,6 +65,10 @@ def main() -> None:
                 cur.execute(path.read_text())
             conn.commit()
             print(f"  applied {path.name}")
+
+        with conn.cursor() as cur:
+            cur.execute(f"GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA {SCHEMA} TO {GRANT_USER}")
+        conn.commit()
     finally:
         conn.close()
 
