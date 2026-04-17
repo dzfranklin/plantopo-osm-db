@@ -20,7 +20,14 @@ BEGIN
     INTO lines_mvt
     FROM (
         SELECT
-            ST_AsMVTGeom(geom, tile_env, 4096, 64, true) AS geom,
+            ST_AsMVTGeom(
+                CASE
+                    WHEN z <= 9  THEN ST_Simplify(geom, 78271.5 / 2^z)
+                    WHEN z <= 12 THEN ST_Simplify(geom, 78271.5 / 2^z * 0.5)
+                    ELSE geom
+                END,
+                tile_env, 4096, 64, true
+            ) AS geom,
             osm_id,
             highway,
             name,

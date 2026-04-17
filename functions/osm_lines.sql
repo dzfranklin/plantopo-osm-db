@@ -8,7 +8,11 @@ RETURNS bytea AS $$
     FROM (
         SELECT
             ST_AsMVTGeom(
-                geom,
+                CASE
+                    WHEN z <= 9  THEN ST_Simplify(geom, 78271.5 / 2^z)
+                    WHEN z <= 12 THEN ST_Simplify(geom, 78271.5 / 2^z * 0.5)
+                    ELSE geom
+                END,
                 ST_TileEnvelope(z, x, y),
                 4096, 64, true
             ) AS geom,
