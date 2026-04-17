@@ -44,10 +44,9 @@ psql:
 update:
 	docker exec $(CONTAINER) /osm/update.sh
 
-# Apply functions against the dev container (no martin restart)
 deploy-functions:
 	docker cp functions/. $(CONTAINER):/osm/functions/
-	docker exec $(CONTAINER) python3 /osm/functions/deploy.py --no-restart
+	docker exec $(CONTAINER) python3 /osm/functions/deploy.py
 
 # Wait for the import to complete, then run the integration test suite.
 # Assumes the container is already running (make run).

@@ -36,3 +36,37 @@ RETURNS bytea AS $$
             )
     ) AS tile
 $$ LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE;
+
+-- TileJSON metadata read by Martin at startup.
+-- JSON Merge-patched onto Martin's auto-generated TileJSON.
+DO $do$ BEGIN
+    EXECUTE 'COMMENT ON FUNCTION osm_functions.osm_lines_tile IS $tj$' || $$
+    {
+        "description": "Zoom-filtered OSM lines: route networks, waterways, and paths",
+        "minzoom": 7,
+        "maxzoom": 16,
+        "vector_layers": [
+            {
+                "id": "osm_lines",
+                "fields": {
+                    "osm_id": "Number",
+                    "highway": "String",
+                    "leisure": "String",
+                    "name": "String",
+                    "natural_type": "String",
+                    "primary_route_color": "String",
+                    "primary_route_id": "Number",
+                    "primary_route_name": "String",
+                    "primary_route_network": "String",
+                    "primary_route_ref": "String",
+                    "route": "String",
+                    "route_relations": "String",
+                    "tags": "String",
+                    "waterway": "String",
+                    "way_id": "Number"
+                }
+            }
+        ]
+    }
+    $$::json || '$tj$';
+END $do$;

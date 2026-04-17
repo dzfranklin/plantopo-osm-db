@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Container]
 Image=ghcr.io/dzfranklin/plantopo-osm-db:latest
+ContainerName=osm-db
 PublishPort=5433:5432
 
 # Persistent storage: pgdata and downloaded OSM files

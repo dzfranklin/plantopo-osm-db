@@ -1,0 +1,141 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "src/**"
+      - "quadlet/**"
+      - "functions/**"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      docker: ${{ steps.filter.outputs.docker }}
+      functions: ${{ steps.filter.outputs.functions }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check changed paths
+        id: filter
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          echo "$CHANGED" | grep -qE '^(Dockerfile|\.dockerignore|src/|quadlet/)' \
+            && echo "docker=true" >> "$GITHUB_OUTPUT" \
+            || echo "docker=false" >> "$GITHUB_OUTPUT"
+          echo "$CHANGED" | grep -q '^functions/' \
+            && echo "functions=true" >> "$GITHUB_OUTPUT" \
+            || echo "functions=false" >> "$GITHUB_OUTPUT"
+
+  build-and-push:
+    name: Build and push
+    needs: check
+    if: needs.check.outputs.docker == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-docker:
+    name: Deploy docker
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+      - name: Deploy
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+        run: |
+          set -euox pipefail
+          install -m 600 /dev/null /tmp/deploy_key
+          echo "$DEPLOY_SSH_KEY" > /tmp/deploy_key
+          tailscale status --peers
+
+          SSH="ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no app@box.reindeer-neon.ts.net"
+
+          # Substitute the image tag in the container file before copying
+          sed "s|ghcr.io/dzfranklin/plantopo-osm-db:.*|ghcr.io/${{ github.repository }}:${IMAGE_TAG}|" \
+            quadlet/osm-db.container > /tmp/osm-db.container
+
+          rsync -az \
+            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
+            /tmp/osm-db.container \
+            quadlet/osm-db.volume \
+            app@box.reindeer-neon.ts.net:/home/app/.config/containers/systemd/
+
+          $SSH "systemctl --user daemon-reload && systemctl --user restart osm-db"
+
+  deploy-functions:
+    name: Deploy functions
+    needs: [check, deploy-docker]
+    # Run if functions changed, but only after docker deploy if docker also ran.
+    # `deploy-docker` is skipped when docker didn't change, and a job with all
+    # skipped dependencies is itself considered skipped (not failed), so this
+    # condition handles both cases correctly.
+    if: |
+      needs.check.outputs.functions == 'true' &&
+      needs.deploy-docker.result != 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+      - name: Copy functions to server and deploy
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          set -euox pipefail
+          install -m 600 /dev/null /tmp/deploy_key
+          echo "$DEPLOY_SSH_KEY" > /tmp/deploy_key
+          tailscale status --peers
+
+          SSH="ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no app@box.reindeer-neon.ts.net"
+
+          rsync -az --delete \
+            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
+            functions/ \
+            app@box.reindeer-neon.ts.net:/tmp/plantopo-osm-db-functions/
+
+          $SSH podman cp /tmp/plantopo-osm-db-functions/. osm-db:/osm/functions/
+          $SSH podman exec osm-db python3 /osm/functions/deploy.py
+          $SSH systemctl --user restart martin
