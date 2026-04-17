@@ -76,7 +76,7 @@ $$ LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE;
 DO $do$ BEGIN
     EXECUTE 'COMMENT ON FUNCTION osm_functions.trails_overlay IS $tj$' || $$
     {
-        "description": "Trails overlay: hiking/cycling paths, route networks, and barrier points",
+        "description": "Trails overlay",
         "minzoom": 7,
         "maxzoom": 16,
         "vector_layers": [
