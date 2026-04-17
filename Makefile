@@ -7,7 +7,6 @@
 
 GHCR_IMAGE = ghcr.io/dzfranklin/plantopo-osm-db
 IMAGE      = $(GHCR_IMAGE):latest
-# Small extract for local testing (~25MB vs 1.5GB for GB)
 TEST_PBF_URL = https://download.geofabrik.de/europe/united-kingdom/scotland-latest.osm.pbf
 TEST_REPLICATION_URL = https://download.geofabrik.de/europe/united-kingdom/scotland-updates
 CONTAINER        = osm-db-dev
