@@ -11,6 +11,6 @@ Example `config.yaml`:
 postgres:
   - connection_string: "postgresql://osm@host.containers.internal:5433/osm"
     auto_publish:
-      tables:
-        id_columns: [osm_id]
+      functions:
+        from_schemas: [osm_functions]
 ```
