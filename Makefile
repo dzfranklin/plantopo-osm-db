@@ -25,7 +25,8 @@ build:
 
 # Run with the test extract (Rutland) instead of the full GB dump
 run: build
-	docker run --rm -it \
+	@trap 'docker stop $(CONTAINER) 2>/dev/null; exit 0' INT TERM EXIT; \
+	docker run --rm \
 		--platform linux/amd64 \
 		--name $(CONTAINER) \
 		-p 5433:5432 \
