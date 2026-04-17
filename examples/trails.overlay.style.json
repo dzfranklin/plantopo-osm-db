@@ -26,22 +26,45 @@
       "source": "osm",
       "source-layer": "osm_lines",
       "filter": [
-        "in",
+        "all",
         [
-          "get",
-          "highway"
+          "in",
+          [
+            "get",
+            "highway"
+          ],
+          [
+            "literal",
+            [
+              "footway",
+              "path",
+              "track",
+              "bridleway",
+              "cycleway",
+              "steps",
+              "via_ferrata"
+            ]
+          ]
         ],
         [
-          "literal",
+          "match",
           [
-            "footway",
-            "path",
-            "track",
-            "bridleway",
-            "cycleway",
-            "steps",
-            "via_ferrata"
-          ]
+            "coalesce",
+            [
+              "get",
+              "footway"
+            ],
+            ""
+          ],
+          [
+            "sidewalk",
+            "crossing",
+            "access_aisle",
+            "traffic_island",
+            "link"
+          ],
+          false,
+          true
         ]
       ],
       "minzoom": 11,
@@ -128,11 +151,7 @@
             "coalesce",
             [
               "get",
-              "tracktype",
-              [
-                "get",
-                "tags"
-              ]
+              "tracktype"
             ],
             ""
           ],
@@ -256,18 +275,41 @@
       "source": "osm",
       "source-layer": "osm_lines",
       "filter": [
-        "in",
+        "all",
         [
-          "get",
-          "highway"
+          "in",
+          [
+            "get",
+            "highway"
+          ],
+          [
+            "literal",
+            [
+              "footway",
+              "pedestrian",
+              "corridor"
+            ]
+          ]
         ],
         [
-          "literal",
+          "match",
           [
-            "footway",
-            "pedestrian",
-            "corridor"
-          ]
+            "coalesce",
+            [
+              "get",
+              "footway"
+            ],
+            ""
+          ],
+          [
+            "sidewalk",
+            "crossing",
+            "access_aisle",
+            "traffic_island",
+            "link"
+          ],
+          false,
+          true
         ]
       ],
       "minzoom": 11,
@@ -276,7 +318,7 @@
         "line-join": "round"
       },
       "paint": {
-        "line-color": "#ff7043",
+        "line-color": "#81c784",
         "line-width": [
           "interpolate",
           [
@@ -317,11 +359,7 @@
             "coalesce",
             [
               "get",
-              "sac_scale",
-              [
-                "get",
-                "tags"
-              ]
+              "sac_scale"
             ],
             ""
           ],
@@ -386,11 +424,7 @@
           "coalesce",
           [
             "get",
-            "designation",
-            [
-              "get",
-              "tags"
-            ]
+            "designation"
           ],
           ""
         ],
@@ -418,11 +452,7 @@
             "coalesce",
             [
               "get",
-              "designation",
-              [
-                "get",
-                "tags"
-              ]
+              "designation"
             ],
             ""
           ],
@@ -479,11 +509,7 @@
             "coalesce",
             [
               "get",
-              "sac_scale",
-              [
-                "get",
-                "tags"
-              ]
+              "sac_scale"
             ],
             ""
           ],
@@ -510,11 +536,7 @@
             "coalesce",
             [
               "get",
-              "sac_scale",
-              [
-                "get",
-                "tags"
-              ]
+              "sac_scale"
             ],
             ""
           ],
@@ -561,11 +583,7 @@
             "coalesce",
             [
               "get",
-              "sac_scale",
-              [
-                "get",
-                "tags"
-              ]
+              "sac_scale"
             ],
             ""
           ],
@@ -666,8 +684,8 @@
       }
     },
     {
-      "id": "route-iwn-nwn",
-      "type": "line",
+      "id": "route-ref-label",
+      "type": "symbol",
       "source": "osm",
       "source-layer": "osm_lines",
       "filter": [
@@ -680,288 +698,13 @@
           "literal",
           [
             "iwn",
-            "nwn"
-          ]
-        ]
-      ],
-      "minzoom": 11,
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-      },
-      "paint": {
-        "line-color": [
-          "case",
-          [
-            "!=",
-            [
-              "coalesce",
-              [
-                "get",
-                "primary_route_color"
-              ],
-              ""
-            ],
-            ""
-          ],
-          [
-            "get",
-            "primary_route_color"
-          ],
-          "#e91e63"
-        ],
-        "line-width": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          11,
-          2,
-          14,
-          5
-        ],
-        "line-opacity": 0.85,
-        "line-offset": 3
-      }
-    },
-    {
-      "id": "route-rwn",
-      "type": "line",
-      "source": "osm",
-      "source-layer": "osm_lines",
-      "filter": [
-        "==",
-        [
-          "get",
-          "primary_route_network"
-        ],
-        "rwn"
-      ],
-      "minzoom": 11,
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-      },
-      "paint": {
-        "line-color": [
-          "case",
-          [
-            "!=",
-            [
-              "coalesce",
-              [
-                "get",
-                "primary_route_color"
-              ],
-              ""
-            ],
-            ""
-          ],
-          [
-            "get",
-            "primary_route_color"
-          ],
-          "#9c27b0"
-        ],
-        "line-width": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          11,
-          1.5,
-          14,
-          4
-        ],
-        "line-opacity": 0.8,
-        "line-offset": 2
-      }
-    },
-    {
-      "id": "route-lwn",
-      "type": "line",
-      "source": "osm",
-      "source-layer": "osm_lines",
-      "filter": [
-        "==",
-        [
-          "get",
-          "primary_route_network"
-        ],
-        "lwn"
-      ],
-      "minzoom": 11,
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-      },
-      "paint": {
-        "line-color": [
-          "case",
-          [
-            "!=",
-            [
-              "coalesce",
-              [
-                "get",
-                "primary_route_color"
-              ],
-              ""
-            ],
-            ""
-          ],
-          [
-            "get",
-            "primary_route_color"
-          ],
-          "#ff9800"
-        ],
-        "line-width": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          11,
-          1,
-          14,
-          3
-        ],
-        "line-opacity": 0.75,
-        "line-offset": 1.5
-      }
-    },
-    {
-      "id": "route-ncn",
-      "type": "line",
-      "source": "osm",
-      "source-layer": "osm_lines",
-      "filter": [
-        "in",
-        [
-          "get",
-          "primary_route_network"
-        ],
-        [
-          "literal",
-          [
+            "nwn",
+            "rwn",
+            "lwn",
             "icn",
-            "ncn"
-          ]
-        ]
-      ],
-      "minzoom": 11,
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-      },
-      "paint": {
-        "line-color": "#0288d1",
-        "line-width": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          11,
-          1.5,
-          14,
-          4
-        ],
-        "line-opacity": 0.8,
-        "line-offset": 3
-      }
-    },
-    {
-      "id": "route-rcn-lcn",
-      "type": "line",
-      "source": "osm",
-      "source-layer": "osm_lines",
-      "filter": [
-        "in",
-        [
-          "get",
-          "primary_route_network"
-        ],
-        [
-          "literal",
-          [
+            "ncn",
             "rcn",
             "lcn"
-          ]
-        ]
-      ],
-      "minzoom": 11,
-      "layout": {
-        "line-cap": "round",
-        "line-join": "round"
-      },
-      "paint": {
-        "line-color": "#4fc3f7",
-        "line-width": [
-          "interpolate",
-          [
-            "linear"
-          ],
-          [
-            "zoom"
-          ],
-          11,
-          1,
-          14,
-          3
-        ],
-        "line-opacity": 0.75,
-        "line-offset": 1.5
-      }
-    },
-    {
-      "id": "route-ref-label",
-      "type": "symbol",
-      "source": "osm",
-      "source-layer": "osm_lines",
-      "filter": [
-        "all",
-        [
-          "!=",
-          [
-            "coalesce",
-            [
-              "get",
-              "primary_route_ref"
-            ],
-            ""
-          ],
-          ""
-        ],
-        [
-          "in",
-          [
-            "get",
-            "primary_route_network"
-          ],
-          [
-            "literal",
-            [
-              "iwn",
-              "nwn",
-              "rwn",
-              "lwn",
-              "icn",
-              "ncn",
-              "rcn",
-              "lcn"
-            ]
           ]
         ]
       ],
@@ -970,8 +713,35 @@
         "symbol-placement": "line",
         "symbol-spacing": 300,
         "text-field": [
-          "get",
-          "primary_route_ref"
+          "coalesce",
+          [
+            "get",
+            "primary_route_ref"
+          ],
+          [
+            "match",
+            [
+              "get",
+              "primary_route_network"
+            ],
+            "iwn",
+            "IWN",
+            "nwn",
+            "NWN",
+            "rwn",
+            "RWN",
+            "lwn",
+            "LWN",
+            "icn",
+            "ICN",
+            "ncn",
+            "NCN",
+            "rcn",
+            "RCN",
+            "lcn",
+            "LCN",
+            ""
+          ]
         ],
         "text-font": [
           "Overpass Bold"
@@ -989,37 +759,60 @@
           16,
           13
         ],
-        "text-max-angle": 30
+        "text-max-angle": 30,
+        "text-offset": [
+          0,
+          -1
+        ]
       },
       "paint": {
-        "text-color": "#ffffff",
-        "text-halo-color": [
-          "match",
+        "text-color": [
+          "case",
+          [
+            "!=",
+            [
+              "coalesce",
+              [
+                "get",
+                "primary_route_color"
+              ],
+              ""
+            ],
+            ""
+          ],
           [
             "get",
-            "primary_route_network"
+            "primary_route_color"
           ],
           [
-            "iwn",
-            "nwn"
-          ],
-          "#e91e63",
-          "rwn",
-          "#9c27b0",
-          "lwn",
-          "#ff9800",
-          [
-            "icn",
-            "ncn"
-          ],
-          "#0288d1",
-          [
-            "rcn",
-            "lcn"
-          ],
-          "#4fc3f7",
-          "#555555"
+            "match",
+            [
+              "get",
+              "primary_route_network"
+            ],
+            [
+              "iwn",
+              "nwn"
+            ],
+            "#e91e63",
+            "rwn",
+            "#9c27b0",
+            "lwn",
+            "#ff9800",
+            [
+              "icn",
+              "ncn"
+            ],
+            "#0288d1",
+            [
+              "rcn",
+              "lcn"
+            ],
+            "#4fc3f7",
+            "#555555"
+          ]
         ],
+        "text-halo-color": "rgba(255,255,255,0.9)",
         "text-halo-width": 2
       }
     },
@@ -1108,11 +901,7 @@
           "coalesce",
           [
             "get",
-            "barrier",
-            [
-              "get",
-              "tags"
-            ]
+            "barrier"
           ],
           ""
         ],
@@ -1135,11 +924,7 @@
             "coalesce",
             [
               "get",
-              "barrier",
-              [
-                "get",
-                "tags"
-              ]
+              "barrier"
             ],
             ""
           ],

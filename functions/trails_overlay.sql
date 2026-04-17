@@ -30,7 +30,10 @@ BEGIN
             primary_route_network,
             primary_route_color,
             primary_route_ref,
-            tags
+            tags->>'sac_scale'    AS sac_scale,
+            tags->>'tracktype'    AS tracktype,
+            tags->>'designation'  AS designation,
+            tags->>'footway'      AS footway
         FROM osm_lines
         WHERE
             z >= 11
@@ -50,7 +53,7 @@ BEGIN
         SELECT
             ST_AsMVTGeom(geom, tile_env, 4096, 64, true) AS geom,
             osm_id,
-            tags
+            tags->>'barrier' AS barrier
         FROM osm_points
         WHERE
             z >= 15
@@ -81,7 +84,10 @@ DO $do$ BEGIN
                     "primary_route_color": "String",
                     "primary_route_network": "String",
                     "primary_route_ref": "String",
-                    "tags": "String"
+                    "sac_scale": "String",
+                    "tracktype": "String",
+                    "designation": "String",
+                    "footway": "String"
                 },
                 "minzoom": 11,
                 "maxzoom": 16
@@ -90,7 +96,7 @@ DO $do$ BEGIN
                 "id": "osm_points",
                 "fields": {
                     "osm_id": "Number",
-                    "tags": "String"
+                    "barrier": "String"
                 },
                 "minzoom": 15,
                 "maxzoom": 16
