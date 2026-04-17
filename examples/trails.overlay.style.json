@@ -67,7 +67,7 @@
           true
         ]
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "round",
         "line-join": "round"
@@ -82,7 +82,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           [
             "match",
             [
@@ -139,7 +139,7 @@
         ],
         "track"
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "round",
         "line-join": "round"
@@ -171,7 +171,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           1.5,
           16,
           4
@@ -192,7 +192,7 @@
         ],
         "bridleway"
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "round",
         "line-join": "round"
@@ -207,7 +207,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           1.5,
           16,
           4
@@ -227,7 +227,7 @@
         ],
         "cycleway"
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "round",
         "line-join": "round"
@@ -242,7 +242,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           1.5,
           16,
           3.5
@@ -292,7 +292,7 @@
           true
         ]
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "round",
         "line-join": "round"
@@ -307,7 +307,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           1,
           16,
           3
@@ -327,7 +327,7 @@
         ],
         "path"
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "round",
         "line-join": "round"
@@ -365,7 +365,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           1,
           16,
           3
@@ -400,7 +400,7 @@
           ]
         ]
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "butt",
         "line-join": "round"
@@ -436,7 +436,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           2,
           16,
           5
@@ -617,7 +617,7 @@
         ],
         "via_ferrata"
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "line-cap": "round",
         "line-join": "round"
@@ -632,7 +632,7 @@
           [
             "zoom"
           ],
-          11,
+          10,
           1.5,
           16,
           3.5
@@ -668,7 +668,7 @@
           ]
         ]
       ],
-      "minzoom": 11,
+      "minzoom": 10,
       "layout": {
         "symbol-placement": "line",
         "symbol-spacing": 300,

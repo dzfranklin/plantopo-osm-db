@@ -1,7 +1,7 @@
 -- Tile function customised for the trails overlay style.
 -- Returns two layers (osm_lines and osm_points) so it can serve as a
 -- single source in the style without needing the generic osm endpoint.
--- Only the fields required by the style are included. Everything starts at zoom 11.
+-- Only the fields required by the style are included. Everything starts at zoom 10.
 -- geom is stored in 3857 (set at import time), so no ST_Transform needed.
 CREATE OR REPLACE FUNCTION osm_functions.trails_overlay(z integer, x integer, y integer)
 RETURNS bytea AS $$
@@ -37,7 +37,7 @@ BEGIN
             tags->>'footway'      AS footway
         FROM osm_lines
         WHERE
-            z >= 11
+            z >= 10
             AND geom && tile_env_m
             AND (
                 highway IN ('footway', 'path', 'track', 'bridleway', 'cycleway',
@@ -73,7 +73,7 @@ DO $do$ BEGIN
     EXECUTE 'COMMENT ON FUNCTION osm_functions.trails_overlay IS $tj$' || $$
     {
         "description": "Trails overlay",
-        "minzoom": 11,
+        "minzoom": 10,
         "maxzoom": 16,
         "vector_layers": [
             {
@@ -91,7 +91,7 @@ DO $do$ BEGIN
                     "designation": "String",
                     "footway": "String"
                 },
-                "minzoom": 11,
+                "minzoom": 10,
                 "maxzoom": 16
             },
             {
