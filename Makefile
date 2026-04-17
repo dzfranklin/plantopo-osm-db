@@ -8,7 +8,10 @@ TEST_PBF_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutla
 TEST_REPLICATION_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutland-updates
 CONTAINER = osm-db-dev
 
-.PHONY: build push run stop logs psql test-import update
+.PHONY: build push run stop logs psql test-import update clean
+
+clean: stop
+	docker volume rm osm-db-dev-data || true
 
 build:
 	docker build --platform linux/amd64 -t $(IMAGE) .
@@ -30,7 +33,6 @@ run: build
 
 stop:
 	docker stop $(CONTAINER) || true
-	docker volume rm -f osm-db-dev-data || true
 
 logs:
 	docker logs -f $(CONTAINER)

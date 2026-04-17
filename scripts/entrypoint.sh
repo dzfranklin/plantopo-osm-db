@@ -236,8 +236,8 @@ daily_update_loop &
 # cleanly instead of escalating to SIGKILL after the StopSignal timeout.
 _shutdown() {
     log "Caught shutdown signal — stopping PostgreSQL..."
-    kill -TERM "${PG_PID}" 2>/dev/null || true
-    wait "${PG_PID}"
+    su postgres -c "pg_ctl stop -D '${PGDATA}' -m fast -w" 2>/dev/null || kill -TERM "${PG_PID}" 2>/dev/null || true
+    wait "${PG_PID}" 2>/dev/null || true
     log "PostgreSQL stopped."
     exit 0
 }
