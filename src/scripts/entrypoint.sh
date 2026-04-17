@@ -130,10 +130,13 @@ SQL
     log "Route denormalization complete."
 
     log "Creating tile functions..."
+    su postgres -c "psql -d ${OSM_DB} -c 'CREATE SCHEMA IF NOT EXISTS osm_functions;'"
     for sql_file in /osm/functions/*.sql; do
         su postgres -c "psql -d ${OSM_DB} -f '${sql_file}'"
     done
     su postgres -c "psql -d ${OSM_DB} -c 'GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO ${OSM_USER};'"
+    su postgres -c "psql -d ${OSM_DB} -c 'GRANT USAGE ON SCHEMA osm_functions TO ${OSM_USER};'"
+    su postgres -c "psql -d ${OSM_DB} -c 'GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA osm_functions TO ${OSM_USER};'"
     log "Tile functions created."
 
     log "Granting access to ${OSM_USER}..."
