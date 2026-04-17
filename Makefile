@@ -1,5 +1,9 @@
 # Local development helpers
 # Requires: docker, psql
+#
+# Deployment is handled by GitHub Actions:
+#   - changes to Dockerfile or src/** → .github/workflows/docker.yml (full redeploy)
+#   - changes to functions/**         → .github/workflows/functions.yml (live update, no rebuild)
 
 GHCR_IMAGE = ghcr.io/dzfranklin/plantopo-osm-db
 IMAGE      = $(GHCR_IMAGE):latest
@@ -8,16 +12,13 @@ TEST_PBF_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutla
 TEST_REPLICATION_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutland-updates
 CONTAINER = osm-db-dev
 
-.PHONY: build push run stop logs psql test-import update clean
+.PHONY: build push run stop logs psql test-import update deploy-functions clean
 
 clean: stop
 	docker volume rm osm-db-dev-data || true
 
 build:
 	docker build --platform linux/amd64 -t $(IMAGE) .
-
-push: build
-	docker push $(IMAGE)
 
 # Run with the test extract (Rutland) instead of the full GB dump
 run: build
@@ -43,10 +44,15 @@ psql:
 update:
 	docker exec $(CONTAINER) /osm/update.sh
 
+# Apply functions against the dev container (no martin restart)
+deploy-functions:
+	docker cp functions/. $(CONTAINER):/osm/functions/
+	docker exec $(CONTAINER) python3 /osm/functions/deploy.py --no-restart
+
 # Wait for the import to complete, then run the integration test suite.
 # Assumes the container is already running (make run).
 test-import:
 	@echo "=== Waiting for import to complete (timeout 10m) ==="
-	scripts/wait-for-import.sh
+	src/scripts/wait-for-import.sh
 	@echo "=== Running integration tests ==="
-	scripts/test-import.sh
+	src/scripts/test-import.sh

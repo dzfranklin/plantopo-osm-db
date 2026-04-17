@@ -1,0 +1,43 @@
+name: Deploy functions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "functions/**"
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Copy functions to server and deploy
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          set -euox pipefail
+          install -m 600 /dev/null /tmp/deploy_key
+          echo "$DEPLOY_SSH_KEY" > /tmp/deploy_key
+          tailscale status --peers
+
+          SSH="ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no app@box.reindeer-neon.ts.net"
+
+          rsync -az --delete \
+            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
+            functions/ \
+            app@box.reindeer-neon.ts.net:/tmp/plantopo-osm-db-functions/
+
+          $SSH docker cp /tmp/plantopo-osm-db-functions/. osm-db:/osm/functions/
+          $SSH docker exec osm-db python3 /osm/functions/deploy.py

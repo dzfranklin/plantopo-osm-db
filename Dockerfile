@@ -57,10 +57,11 @@ COPY --from=osm2pgsql-builder /venv /venv
 ENV PATH="/venv/bin:$PATH"
 
 # postgresql.conf template — copied into PGDATA by entrypoint.sh after initdb.
-COPY postgresql.conf /etc/postgresql/postgresql.conf
+COPY src/postgresql.conf /etc/postgresql/postgresql.conf
 
-COPY flex-config.lua /osm/flex-config.lua
-COPY scripts/ /osm/
+COPY src/flex-config.lua /osm/flex-config.lua
+COPY src/scripts/ /osm/
+COPY functions/ /osm/functions/
 
 RUN chmod +x /osm/*.sh
 
