@@ -54,7 +54,7 @@ deploy-functions:
 	docker exec $(CONTAINER) python3 /osm/functions/deploy.py
 
 martin:
-	@(sleep 2 && open http://localhost:3000) &
+	@(sleep 2 && open http://localhost:3000 && open https://maplibre.org/maputnik/?style=http%3A%2F%2Flocalhost%3A3000%2Fstyle%2Ftrails.overlay.style) &
 	docker run --rm -it \
 		--name $(MARTIN_CONTAINER) \
 		-p 3000:3000 \
