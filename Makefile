@@ -8,14 +8,18 @@
 GHCR_IMAGE = ghcr.io/dzfranklin/plantopo-osm-db
 IMAGE      = $(GHCR_IMAGE):latest
 # Small extract for local testing (~25MB vs 1.5GB for GB)
-TEST_PBF_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutland-latest.osm.pbf
-TEST_REPLICATION_URL = https://download.geofabrik.de/europe/united-kingdom/england/rutland-updates
-CONTAINER = osm-db-dev
+TEST_PBF_URL = https://download.geofabrik.de/europe/united-kingdom/scotland-latest.osm.pbf
+TEST_REPLICATION_URL = https://download.geofabrik.de/europe/united-kingdom/scotland-updates
+CONTAINER        = osm-db-dev
+MARTIN_CONTAINER = osm-martin-dev
 
-.PHONY: build push run stop logs psql test-import update deploy-functions clean
+.PHONY: build push run stop logs psql test-import update deploy-functions clean martin martin-stop
 
 clean: stop
 	docker volume rm osm-db-dev-data || true
+
+clean-all: clean
+	docker volume rm osm-db-dev-pbf || true
 
 build:
 	docker build --platform linux/amd64 -t $(IMAGE) .
@@ -27,6 +31,7 @@ run: build
 		--name $(CONTAINER) \
 		-p 5433:5432 \
 		-v osm-db-dev-data:/var/lib/postgresql/18 \
+		-v osm-db-dev-pbf:/var/lib/postgresql/18/osm-imports \
 		-e PBF_URL=$(TEST_PBF_URL) \
 		-e REPLICATION_URL=$(TEST_REPLICATION_URL) \
 		-e OSM2PGSQL_PROCS=2 \
@@ -47,6 +52,19 @@ update:
 deploy-functions:
 	docker cp functions/. $(CONTAINER):/osm/functions/
 	docker exec $(CONTAINER) python3 /osm/functions/deploy.py
+
+martin:
+	@(sleep 2 && open http://localhost:3000) &
+	docker run --rm -it \
+		--name $(MARTIN_CONTAINER) \
+		-p 3000:3000 \
+		-v $(PWD)/examples:/examples:ro \
+		ghcr.io/maplibre/martin \
+		--config /examples/martin-config.yaml \
+		--listen-addresses 0.0.0.0:3000
+
+martin-stop:
+	docker stop $(MARTIN_CONTAINER) || true
 
 # Wait for the import to complete, then run the integration test suite.
 # Assumes the container is already running (make run).
